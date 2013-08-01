@@ -8,6 +8,7 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     config = Configurator(settings=settings)
+    config.add_translation_dirs('locale/')
     config.include('pyramid_jinja2')
     config.add_renderer('.html', 'pyramid_jinja2.renderer_factory')
     config.add_jinja2_search_path("billwatcher:templates")

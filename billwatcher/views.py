@@ -1,9 +1,17 @@
 from pyramid.view import view_config
+from pyramid.i18n import TranslationStringFactory
+
 from webhelpers import paginate
+
+_ = TranslationStringFactory('billwatcher')
 
 def views_include(config):
     config.add_route('bill.list', '/')
     config.add_route('bill.detail', '/detail/{rev_id}')
+
+    config.add_route('feeds', '/feeds')
+    config.add_route('search', '/search')
+    config.add_route('about', '/about')
 
 @view_config(route_name='bill.list', renderer='bill/list.html')
 def bill_list(request):
@@ -41,4 +49,25 @@ def bill_detail(request):
     bill = request.db.bills.find_one({'item.id': rev_id})
     import pprint
     pprint.pprint(bill)
+    return {}
+
+@view_config(route_name='feeds')
+def feeds(request):
+    from pyramid.response import Response
+    from webhelpers import feedgenerator
+
+    feed = feedgenerator.Rss201rev2Feed(title='test',
+                                        link=request.route_url('bill.list'),
+                                        description='test message')
+    feed.add_item(title='Hello',
+                  link=request.route_url('bill.list'),
+                  description='test')
+
+    resp = Response()
+    resp.content_type = 'application/rss+xml'
+    feed.write(resp.body_file, 'utf-8')
+    return resp
+
+@view_config(route_name='about', renderer='about.html')
+def about(request):
     return {}
